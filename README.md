@@ -6,7 +6,7 @@ Console based CRUD application to track coding hours. Developed using C#, SQLite
     <li>User is able to insert a description, a date, a start time and an end time for a coding study session, which is stored and read in an SQL database.</li>
     <li>The total amount of time studied for a session is automatically calculated and output for the user when they view their sessions.</li>
     <li>SQL quueries are used to allow the user to filter their data, such as viewing data for a specific month or year.
-    <li>Spectre.Console is used to allow the user to select from a list of their options in, as well as to display their data in an easily readable table.</li>
+    <li>Spectre.Console is used to allow the user to select from a list of their options, as well as to display their data in an easily readable table.</li>
 </ul>
 
 # Add Later
