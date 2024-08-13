@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+
 namespace coding_tracker
 {
     internal class UserInput
@@ -13,11 +14,7 @@ namespace coding_tracker
 
             if (!isUpdate)
             {
-                while (string.IsNullOrEmpty(input))
-                {
-                    Console.WriteLine("Description cannot be empty. Please enter a valid description");
-                    input = Console.ReadLine();
-                }
+                Validation.GetStringInput(input);
             }
 
             return string.IsNullOrEmpty(input) ? currentDescription : input;
@@ -50,7 +47,7 @@ namespace coding_tracker
         public static DateTime GetUserDate(string prompt, bool isUpdate, DateTime currentDate = default)
         {
             Console.WriteLine(isUpdate ? 
-                $"{prompt} (Current: {currentDate.ToString("MM/dd/yyyy")}, press Enter to keep current):" :
+                $"{prompt} (Current: {currentDate.ToString("yyyy-MM-dd")}, press Enter to keep current):" :
                 prompt);
 
             string input = Console.ReadLine();
@@ -58,18 +55,34 @@ namespace coding_tracker
             DateTime date;
             var cultureInfo = new CultureInfo("en-US");
 
-            while (!DateTime.TryParseExact(input, "MM/dd/yyyy", cultureInfo, DateTimeStyles.None, out date))
+            while (!DateTime.TryParseExact(input, "yyyy-MM-dd", cultureInfo, DateTimeStyles.None, out date))
             {
                 if (isUpdate && string.IsNullOrEmpty(input))
                 {
                     return currentDate;
                 }
 
-                Console.WriteLine("Invalid input. Please enter the date and time in the format MM/dd/yyyy");
+                Console.WriteLine("Invalid input. Please enter the date and time in the format yyyy-MM-dd");
                 input = Console.ReadLine();
             }
 
             return string.IsNullOrEmpty(input) ? currentDate : date;
+        }
+
+        public static DateTime GetUserFilterMonth(string prompt)
+        {
+            Console.WriteLine(prompt);
+            string input = Console.ReadLine();
+            DateTime date;
+            var cultureInfo = new CultureInfo("en-US");
+
+            while (!DateTime.TryParseExact(input, "yyyy-MM", cultureInfo, DateTimeStyles.None, out date))
+            {
+                Console.WriteLine("Invalid input. Please enter the date and time in the format yyyy-MM");
+                input = Console.ReadLine();
+            }
+
+            return new DateTime(date.Year, date.Month, 1);
         }
     }
 }

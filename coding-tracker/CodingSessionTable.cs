@@ -7,6 +7,7 @@ namespace coding_tracker
     public class CodingSessionTable
     {
         private static string connectionString = ConfigurationManager.AppSettings.Get("connectionString");
+        
         public void CreateTable()
         {
             using (var connection = new SqliteConnection(connectionString))
@@ -29,32 +30,93 @@ namespace coding_tracker
             }
         }
 
-        public static void ViewData()
+        public static IEnumerable<CodingSession> GetData()
         {
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 string sql = "SELECT * FROM coding_sessions";
                 var codingSessions = connection.Query<CodingSession>(sql).ToList();
+                return codingSessions;
+            }
+        }
 
-                Console.Clear();
+        public static IEnumerable<CodingSession> GetMonthlyData()
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                Console.WriteLine("Please enter the month for which you would like to view data in format MM ");
+                var month = Console.ReadLine();
+                Console.WriteLine("Please enter the year for the month that you would like to view data in format yyyy");
+                var year = Console.ReadLine();
 
-                foreach (var session in codingSessions)
+                if (int.TryParse(month, out int monthInt) && int.TryParse(year, out int yearInt))
                 {
-                    Console.WriteLine("\n");
-                    Console.WriteLine($"Id: {session.Id}");
-                    Console.WriteLine($"Description: {session.Session_description}");
-                    Console.WriteLine($"Date: {session.Date.ToShortDateString()}");
-                    Console.WriteLine($"Start Time: {session.StartTime.ToShortTimeString()}");
-                    Console.WriteLine($"EndTime: {session.EndTime.ToShortTimeString()}");
-                    Console.WriteLine($"Duration: {session.DurationString}");
-                    Console.WriteLine("\n");
+                    DateTime startDate = new DateTime(yearInt, monthInt, 1);
+                    DateTime endDate = startDate.AddMonths(1).AddDays(-1);
+
+                    string sql = @"
+                        SELECT *
+                        FROM coding_sessions
+                        WHERE Date BETWEEN @StartDate AND @EndDate
+                        ORDER BY Date ASC";
+
+                    var monthlySessions = connection.Query<CodingSession>(sql, new
+                    {
+                        StartDate = startDate.ToString("yyyy-MM-dd"),
+                        EndDate = endDate.ToString("yyyy-MM-dd")
+                    }).ToList();
+
+                    return monthlySessions;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid month or year entered.");
+                    return new List<CodingSession>();
                 }
             }
         }
 
-        public static void Insert()
+        public static IEnumerable<CodingSession> GetYearlyData()
         {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                Console.WriteLine("Please enter the year for which you would like to view data in the format yyyy");
+                var year = Console.ReadLine();
+                
+
+                if (int.TryParse(year, out int yearInt))
+                {
+                    DateTime startDate = new DateTime(yearInt, 2, 2);
+                    DateTime endDate = new DateTime(yearInt, 12, 31);
+
+                    string sql = @"
+                        SELECT *
+                        FROM coding_sessions
+                        WHERE Date BETWEEN @StartDate AND @EndDate
+                        ORDER BY Date ASC";
+
+                    var yearlySessions = connection.Query<CodingSession>(sql, new
+                    {
+                        StartDate = startDate.ToString("yyyy-MM-dd"),
+                        EndDate = endDate.ToString("yyyy-MM-dd")
+                    }).ToList();
+
+                    return yearlySessions;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid year entered");
+                    return new List<CodingSession>();
+                }
+            }
+        }
+        public static void Insert()
+        {   
+            Console.Clear();
+            ConsoleUI.DisplayTitle();
             CodingSession newSession = new CodingSession();
             newSession.InitializeCodingSession(false);
 
@@ -68,7 +130,7 @@ namespace coding_tracker
                         VALUES (@Description, @Date, @StartTime, @EndTime)";
 
                     insertCmd.Parameters.AddWithValue("Description", newSession.Session_description);
-                    insertCmd.Parameters.AddWithValue("Date", newSession.Date.ToString("MM/dd/yyyy"));
+                    insertCmd.Parameters.AddWithValue("Date", newSession.Date.ToString("yyyy-MM-dd"));
                     insertCmd.Parameters.AddWithValue("StartTime", newSession.StartTime.ToString("HH:mm"));
                     insertCmd.Parameters.AddWithValue("EndTime", newSession.EndTime.ToString("HH:mm"));
 
@@ -81,9 +143,10 @@ namespace coding_tracker
         {
             while (true)
             {
-                ViewData();
-
-                var sessionId = Validation.GetNumberInput("\n\n Please type the Id of the session that you would like to update.\n\n");
+                Console.Clear();
+                ConsoleUI.DisplayTitle();
+                ConsoleUI.ShowCodingSession();
+                var sessionId = Validation.GetNumberInput("\n\n Please type the Id of the session that you would like to update, or press 0 to return to the main menu.\n\n");
 
                 using (var connection = new SqliteConnection(connectionString))
                 {
@@ -131,12 +194,15 @@ namespace coding_tracker
 
         public static void Delete()
         {
+            Console.Clear();
+            ConsoleUI.DisplayTitle();
+
             while (true)
             {
-                ViewData();
+                ConsoleUI.ShowCodingSession();
 
-                var sessionId = Validation.GetNumberInput("\n\nPlease type the Id of the session that you woulld like to delete.\n\n");
-
+                var sessionId = Validation.GetNumberInput("\n\nPlease type the Id of the session that you woulld like to delete, or press 0 to return to the main menu\n\n");
+       
                 using (var connection = new SqliteConnection(connectionString))
                 {
                     connection.Open();
@@ -168,5 +234,6 @@ namespace coding_tracker
                 }
             }
         }
+
     }
 }
