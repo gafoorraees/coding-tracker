@@ -12,6 +12,6 @@ Console based CRUD application to track coding hours. Developed using C#, SQLite
 # Add Later
 <ul>
     <li>Add a stopwatch for a live coding session.</li>
-    <li>Add an option for the user to see a report of total time and average time per coding session for a specific month or specific year.<li>
+    <li>Add an option for the user to see a report of total time and average time per coding session for a specific month or specific year.</li>
     <li>Allow the user to create a total hours goal and how many hours per day they need to study in order to reach that goal</li>
 </ul>
