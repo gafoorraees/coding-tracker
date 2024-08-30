@@ -5,7 +5,7 @@ namespace Coding_Tracker;
 
 internal class MainMenu
 {
-    internal void Menu()
+    public void Menu()
     {
         Console.Clear();
         int count = 0; // prevent title from being displayed twice when data table is being displayed. 
@@ -84,5 +84,11 @@ internal class MainMenu
                 Console.WriteLine("\nInvalid Command.\n");
                 break;
         }
+    }
+
+    public static void ReturnToMenu()
+    {
+        var menu = new MainMenu();
+        menu.Menu();
     }
 }

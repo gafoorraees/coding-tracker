@@ -39,9 +39,7 @@ internal class ConsoleUI
     }
 
     public static void ShowMonthly()
-    {
-
-
+    { 
         Console.Clear();
 
         var sessions = CodingSessionTable.GetMonthlyData();
